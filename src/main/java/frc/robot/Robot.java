@@ -55,17 +55,17 @@ public class Robot extends TimedRobot {
   public void robotPeriodic() {
     double rawAxis1 = joystick.getRawAxis(1);
     double rawAxis0 = joystick.getRawAxis(0);
-    if(rawAxis0 < 0.1 && rawAxis0 > -0.1){
+    if (rawAxis0 < 0.1 && rawAxis0 > -0.1) {
       left1.set(ControlMode.PercentOutput, -rawAxis1);
       left2.set(ControlMode.PercentOutput, -rawAxis1);
       right1.set(ControlMode.PercentOutput, rawAxis1);
       right2.set(ControlMode.PercentOutput, rawAxis1);
-    } else if(rawAxis0 >= 0.1){
+    } else if (rawAxis0 >= 0.1) {
       left1.set(ControlMode.PercentOutput, 0.5);
       left2.set(ControlMode.PercentOutput, 0.5);
       right1.set(ControlMode.PercentOutput, 0.5);
       right2.set(ControlMode.PercentOutput, 0.5);
-    }else{
+    } else {
       left1.set(ControlMode.PercentOutput, -0.5);
       left2.set(ControlMode.PercentOutput, -0.5);
       right1.set(ControlMode.PercentOutput, -0.5);
