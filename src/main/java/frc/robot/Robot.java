@@ -116,11 +116,29 @@ public class Robot extends TimedRobot {
     double leftStick = joystick.getRawAxis(1);
     double rightStick = joystick.getRawAxis(5);
     leftStick = leftStick * -1;
+
+    if(leftStick > 0 ){
+    leftStick = leftStick * leftStick;
+    }else if (leftStick < 0){
+      leftStick = leftStick * leftStick * -1;
+    }
+
+    if(rightStick > 0 ){
+      rightStick = rightStick * rightStick;
+      }else if (rightStick < 0){
+        rightStick = rightStick * rightStick * -1;
+      }
+    
     left1.set(ControlMode.PercentOutput, leftStick);
     left2.set(ControlMode.PercentOutput, leftStick);
+  
+    if(joystick.getRawButton(1)){
+      right1.set(ControlMode.PercentOutput, -leftStick);
+      right2.set(ControlMode.PercentOutput, -leftStick);
+    }else{
     right1.set(ControlMode.PercentOutput, rightStick);
     right2.set(ControlMode.PercentOutput, rightStick);
-  
+    }
     // double rawAxis0 = joystick.getRawAxis(0);
     // if (rawAxis0 < 0.1 && rawAxis0 > -0.1) {
     //   left1.set(ControlMode.PercentOutput, -rawAxis1);
