@@ -7,6 +7,9 @@ package frc.robot;
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.can.VictorSPX;
 
+import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.networktables.NetworkTableEntry;
+import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -30,6 +33,7 @@ public class Robot extends TimedRobot {
   private VictorSPX right2 = new VictorSPX(7);
 
   private Joystick joystick = new Joystick(0);
+  private Joystick joystick2 = new Joystick(1);
 
   /**
    * This function is run when the robot is first started up and should be used for any
@@ -53,25 +57,22 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void robotPeriodic() {
-    double rawAxis1 = joystick.getRawAxis(1);
-    double rawAxis0 = joystick.getRawAxis(0);
-    if (rawAxis0 < 0.1 && rawAxis0 > -0.1) {
-      left1.set(ControlMode.PercentOutput, -rawAxis1);
-      left2.set(ControlMode.PercentOutput, -rawAxis1);
-      right1.set(ControlMode.PercentOutput, rawAxis1);
-      right2.set(ControlMode.PercentOutput, rawAxis1);
-    } else if (rawAxis0 >= 0.1) {
-      left1.set(ControlMode.PercentOutput, 0.5);
-      left2.set(ControlMode.PercentOutput, 0.5);
-      right1.set(ControlMode.PercentOutput, 0.5);
-      right2.set(ControlMode.PercentOutput, 0.5);
-    } else {
-      left1.set(ControlMode.PercentOutput, -0.5);
-      left2.set(ControlMode.PercentOutput, -0.5);
-      right1.set(ControlMode.PercentOutput, -0.5);
-      right2.set(ControlMode.PercentOutput, -0.5);
-    }
+
     
+    // NetworkTable table = NetworkTableInstance.getDefault().getTable("limelight");
+    // NetworkTableEntry tx = table.getEntry("tx");
+    // NetworkTableEntry ty = table.getEntry("ty");
+    // NetworkTableEntry ta = table.getEntry("ta");
+
+    // //read values periodically
+    // double x = tx.getDouble(0.0);
+    // double y = ty.getDouble(0.0);
+    // double area = ta.getDouble(0.0);
+
+    // //post to smart dashboard periodically
+    // SmartDashboard.putNumber("LimelightX", x);
+    // SmartDashboard.putNumber("LimelightY", y);
+    // SmartDashboard.putNumber("LimelightArea", area);
   }
 
   /**
@@ -111,7 +112,35 @@ public class Robot extends TimedRobot {
 
   /** This function is called periodically during operator control. */
   @Override
-  public void teleopPeriodic() {}
+  public void teleopPeriodic() {
+    double leftStick = joystick.getRawAxis(1);
+    double rightStick = joystick.getRawAxis(5);
+    leftStick = leftStick * -1;
+    left1.set(ControlMode.PercentOutput, leftStick);
+    left2.set(ControlMode.PercentOutput, leftStick);
+    right1.set(ControlMode.PercentOutput, rightStick);
+    right2.set(ControlMode.PercentOutput, rightStick);
+  
+    // double rawAxis0 = joystick.getRawAxis(0);
+    // if (rawAxis0 < 0.1 && rawAxis0 > -0.1) {
+    //   left1.set(ControlMode.PercentOutput, -rawAxis1);
+    //   left2.set(ControlMode.PercentOutput, -rawAxis1);
+    //   right1.set(ControlMode.PercentOutput, rawAxis1);
+    //   right2.set(ControlMode.PercentOutput, rawAxis1);
+    // } else if (rawAxis0 >= 0.1) {
+    //   left1.set(ControlMode.PercentOutput, 0.5);
+    //   left2.set(ControlMode.PercentOutput, 0.5);
+    //   right1.set(ControlMode.PercentOutput, 0.5);
+    //   right2.set(ControlMode.PercentOutput, 0.5);
+    // } else {
+    //   left1.set(ControlMode.PercentOutput, -0.5);
+    //   left2.set(ControlMode.PercentOutput, -0.5);
+    //   right1.set(ControlMode.PercentOutput, -0.5);
+    //   right2.set(ControlMode.PercentOutput, -0.5);
+    // }
+
+
+  }
 
   /** This function is called once when the robot is disabled. */
   @Override
