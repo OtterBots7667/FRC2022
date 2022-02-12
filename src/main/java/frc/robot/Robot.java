@@ -24,8 +24,6 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 public class Robot extends TimedRobot {
   private static final String kDefaultAuto = "Default";
   private static final String kCustomAuto = "My Auto";
-  private String m_autoSelected;
-  private final SendableChooser<String> m_chooser = new SendableChooser<>();
 
   private VictorSPX left1 = new VictorSPX(10);
   private VictorSPX left2 = new VictorSPX(9);
@@ -33,18 +31,12 @@ public class Robot extends TimedRobot {
   private VictorSPX right2 = new VictorSPX(7);
 
   private Joystick joystick = new Joystick(0);
-  private Joystick joystick2 = new Joystick(1);
-
   /**
    * This function is run when the robot is first started up and should be used for any
    * initialization code.
    */
   @Override
   public void robotInit() {
-    m_chooser.setDefaultOption("Default Auto", kDefaultAuto);
-    m_chooser.addOption("My Auto", kCustomAuto);
-    SmartDashboard.putData("Auto choices", m_chooser);
-    System.out.println("TEST");
   }
 
   /**
@@ -59,20 +51,20 @@ public class Robot extends TimedRobot {
   public void robotPeriodic() {
 
     
-    // NetworkTable table = NetworkTableInstance.getDefault().getTable("limelight");
-    // NetworkTableEntry tx = table.getEntry("tx");
-    // NetworkTableEntry ty = table.getEntry("ty");
-    // NetworkTableEntry ta = table.getEntry("ta");
+    NetworkTable table = NetworkTableInstance.getDefault().getTable("limelight");
+    NetworkTableEntry tx = table.getEntry("tx");
+    NetworkTableEntry ty = table.getEntry("ty");
+    NetworkTableEntry ta = table.getEntry("ta");
 
-    // //read values periodically
-    // double x = tx.getDouble(0.0);
-    // double y = ty.getDouble(0.0);
-    // double area = ta.getDouble(0.0);
+    //read values periodically
+    double x = tx.getDouble(0.0);
+    double y = ty.getDouble(0.0);
+    double area = ta.getDouble(0.0);
 
-    // //post to smart dashboard periodically
-    // SmartDashboard.putNumber("LimelightX", x);
-    // SmartDashboard.putNumber("LimelightY", y);
-    // SmartDashboard.putNumber("LimelightArea", area);
+    //post to smart dashboard periodically
+    SmartDashboard.putNumber("LimelightX", x);
+    SmartDashboard.putNumber("LimelightY", y);
+    SmartDashboard.putNumber("LimelightArea", area);
   }
 
   /**
@@ -87,22 +79,41 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void autonomousInit() {
-    m_autoSelected = m_chooser.getSelected();
-    // m_autoSelected = SmartDashboard.getString("Auto Selector", kDefaultAuto);
-    System.out.println("Auto selected: " + m_autoSelected);
+
   }
 
   /** This function is called periodically during autonomous. */
   @Override
   public void autonomousPeriodic() {
-    switch (m_autoSelected) {
-      case kCustomAuto:
-        // Put custom auto code here
-        break;
-      case kDefaultAuto:
-      default:
-        // Put default auto code here
-        break;
+
+    NetworkTable table = NetworkTableInstance.getDefault().getTable("limelight");
+    NetworkTableEntry tx = table.getEntry("tx");
+    NetworkTableEntry tv = table.getEntry("tv");
+    double x = tx.getDouble(0.0);
+    double isTarget = tv.getDouble(0.0);
+    if(isTarget == 0.0){
+      left1.set(ControlMode.PercentOutput, 0);
+      left2.set(ControlMode.PercentOutput, 0);
+      right1.set(ControlMode.PercentOutput, 0);
+      right2.set(ControlMode.PercentOutput, 0);
+    }else {
+      if (x > 6){
+      left1.set(ControlMode.PercentOutput, 0.3);
+      left2.set(ControlMode.PercentOutput, 0.3);
+      right1.set(ControlMode.PercentOutput, 0);
+      right2.set(ControlMode.PercentOutput, 0);
+      }else if(x < -6){
+      right1.set(ControlMode.PercentOutput, -0.3);
+      right2.set(ControlMode.PercentOutput, -0.3);
+      left1.set(ControlMode.PercentOutput, 0);
+      left2.set(ControlMode.PercentOutput, 0);
+      }else{
+        right1.set(ControlMode.PercentOutput, 0);
+        right2.set(ControlMode.PercentOutput, 0);
+        left1.set(ControlMode.PercentOutput, 0);
+        left2.set(ControlMode.PercentOutput, 0);
+
+      }
     }
   }
 
@@ -117,12 +128,12 @@ public class Robot extends TimedRobot {
     double rightStick = joystick.getRawAxis(5);
     leftStick = leftStick * -1;
 
+  // squares the motor power; easier to use low speeds, but high speed is uneffected
     if(leftStick > 0 ){
     leftStick = leftStick * leftStick;
     }else if (leftStick < 0){
       leftStick = leftStick * leftStick * -1;
     }
-
     if(rightStick > 0 ){
       rightStick = rightStick * rightStick;
       }else if (rightStick < 0){
@@ -131,7 +142,8 @@ public class Robot extends TimedRobot {
     
     left1.set(ControlMode.PercentOutput, leftStick);
     left2.set(ControlMode.PercentOutput, leftStick);
-  
+    
+    // if you press A, all wheels are controled by left stick (makes sure that you drive straight)
     if(joystick.getRawButton(1)){
       right1.set(ControlMode.PercentOutput, -leftStick);
       right2.set(ControlMode.PercentOutput, -leftStick);
