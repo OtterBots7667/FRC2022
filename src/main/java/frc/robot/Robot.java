@@ -22,8 +22,6 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
  * project.
  */
 public class Robot extends TimedRobot {
-  private static final String kDefaultAuto = "Default";
-  private static final String kCustomAuto = "My Auto";
 
   private VictorSPX left1 = new VictorSPX(10);
   private VictorSPX left2 = new VictorSPX(9);
@@ -50,7 +48,6 @@ public class Robot extends TimedRobot {
   @Override
   public void robotPeriodic() {
 
-    
     NetworkTable table = NetworkTableInstance.getDefault().getTable("limelight");
     NetworkTableEntry tx = table.getEntry("tx");
     NetworkTableEntry ty = table.getEntry("ty");
@@ -151,6 +148,10 @@ public class Robot extends TimedRobot {
     right1.set(ControlMode.PercentOutput, rightStick);
     right2.set(ControlMode.PercentOutput, rightStick);
     }
+
+    
+
+    //  ORIGINAL DRIVING CODE:
     // double rawAxis0 = joystick.getRawAxis(0);
     // if (rawAxis0 < 0.1 && rawAxis0 > -0.1) {
     //   left1.set(ControlMode.PercentOutput, -rawAxis1);
@@ -168,7 +169,6 @@ public class Robot extends TimedRobot {
     //   right1.set(ControlMode.PercentOutput, -0.5);
     //   right2.set(ControlMode.PercentOutput, -0.5);
     // }
-
 
   }
 
