@@ -4,7 +4,13 @@
 
 package frc.robot;
 
+import java.beans.Encoder;
+
 import com.ctre.phoenix.motorcontrol.ControlMode;
+import com.ctre.phoenix.motorcontrol.FeedbackDevice;
+import com.ctre.phoenix.motorcontrol.TalonSRXControlMode;
+import com.ctre.phoenix.motorcontrol.can.TalonFX;
+import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.ctre.phoenix.motorcontrol.can.VictorSPX;
 
 import edu.wpi.first.networktables.NetworkTable;
@@ -12,7 +18,6 @@ import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.TimedRobot;
-import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 /**
@@ -24,9 +29,13 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 public class Robot extends TimedRobot {
 
   private VictorSPX left1 = new VictorSPX(10);
-  private VictorSPX left2 = new VictorSPX(9);
+  private VictorSPX left2 = new VictorSPX(7);
   private VictorSPX right1 = new VictorSPX(8);
-  private VictorSPX right2 = new VictorSPX(7);
+  private VictorSPX right2 = new VictorSPX(9);
+  private VictorSPX intake = new VictorSPX(0);
+  private VictorSPX transfer = new VictorSPX(2);
+  private TalonFX shooterPower = new TalonFX(11);
+  private TalonSRX shooterCam = new TalonSRX(0);
 
   private Joystick joystick = new Joystick(0);
   /**
@@ -116,7 +125,10 @@ public class Robot extends TimedRobot {
 
   /** This function is called once when teleop is enabled. */
   @Override
-  public void teleopInit() {}
+  public void teleopInit() {
+
+    // shooterCam.setSelectedSensorPosition(0);
+  }
 
   /** This function is called periodically during operator control. */
   @Override
@@ -141,7 +153,7 @@ public class Robot extends TimedRobot {
     left2.set(ControlMode.PercentOutput, leftStick);
     
     // if you press A, all wheels are controled by left stick (makes sure that you drive straight)
-    if(joystick.getRawButton(1)){
+    if(joystick.getRawButton(5)){
       right1.set(ControlMode.PercentOutput, -leftStick);
       right2.set(ControlMode.PercentOutput, -leftStick);
     }else{
@@ -149,7 +161,42 @@ public class Robot extends TimedRobot {
     right2.set(ControlMode.PercentOutput, rightStick);
     }
 
-    
+    if(joystick.getRawButton(1)){
+      intake.set(ControlMode.PercentOutput, -0.5);
+    }else{
+      intake.set(ControlMode.PercentOutput, 0);
+    }
+
+    if(joystick.getRawButton(2)){
+      transfer.set(ControlMode.PercentOutput, -1);
+    }else{
+      transfer.set(ControlMode.PercentOutput, 0);
+    }
+
+    if(joystick.getRawButton(3)){
+    shooterPower.set(ControlMode.PercentOutput, -0.65);
+    }else{
+    shooterPower.set(ControlMode.PercentOutput, 0);
+    }
+
+    SmartDashboard.putNumber("encoder", shooterCam.getSelectedSensorPosition());
+//     if(joystick.getRawButton(4)){
+//       // shooterCam.set(ControlMode.PercentOutput, -0.1);
+
+// shooterCam.set(TalonSRXControlMode.Position, 20000);
+// // System.out.println(shooterCam.getSelectedSensorPosition());
+// System.out.println(shooterCam.getSelectedSensorVelocity());
+//     }else{
+//       // shooterCam.set(ControlMode.PercentOutput, 0);
+//     }
+
+    // if(joystick.getRawButton(6) && shooterCam.getSelectedSensorPosition() < 0){
+    //   shooterCam.set(ControlMode.PercentOutput, 0.2);
+    // } else if (joystick.getRawButton(5) && shooterCam.getSelectedSensorPosition() > -16000) {
+    //   shooterCam.set(ControlMode.PercentOutput, -0.2);
+    // } else {
+    //   shooterCam.set(ControlMode.PercentOutput, 0);
+    // }
 
     //  ORIGINAL DRIVING CODE:
     // double rawAxis0 = joystick.getRawAxis(0);
@@ -182,9 +229,18 @@ public class Robot extends TimedRobot {
 
   /** This function is called once when test mode is enabled. */
   @Override
-  public void testInit() {}
+  public void testInit() {
+    // shooterCam.set(ControlMode.Velocity, 100);
+  
+  }
 
   /** This function is called periodically during test mode. */
   @Override
-  public void testPeriodic() {}
+  public void testPeriodic() {
+
+    if(joystick.getRawButton(1)){
+      shooterCam.set(ControlMode.Position, 100);
+    }
+
+  }
 }
