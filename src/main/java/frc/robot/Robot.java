@@ -12,12 +12,14 @@ import com.ctre.phoenix.motorcontrol.TalonSRXControlMode;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.ctre.phoenix.motorcontrol.can.VictorSPX;
+import com.ctre.phoenix.motorcontrol.can.WPI_VictorSPX;
 
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.motorcontrol.MotorControllerGroup;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 /**
@@ -28,16 +30,22 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
  */
 public class Robot extends TimedRobot {
 
-  private VictorSPX left1 = new VictorSPX(10);
-  private VictorSPX left2 = new VictorSPX(7);
-  private VictorSPX right1 = new VictorSPX(8);
-  private VictorSPX right2 = new VictorSPX(9);
+  // private WPI_VictorSPX left1 = new WPI_VictorSPX(10);
+  // private WPI_VictorSPX left2 = new WPI_VictorSPX(7);
+  // private VictorSPX right1 = new VictorSPX(8);
+  // private VictorSPX right2 = new VictorSPX(9);
+  private MotorControllerGroup right = new MotorControllerGroup( new WPI_VictorSPX(8), new WPI_VictorSPX(9));
+  private MotorControllerGroup left = new MotorControllerGroup( new WPI_VictorSPX(7), new WPI_VictorSPX(10));
   private VictorSPX intake = new VictorSPX(0);
   private VictorSPX transfer = new VictorSPX(2);
   private TalonFX shooterPower = new TalonFX(11);
   private TalonSRX shooterCam = new TalonSRX(0);
 
   private Joystick joystick = new Joystick(0);
+  private Joystick joystick2 = new Joystick(1);
+
+  boolean shootPowNumTwo = false;
+  boolean shootPowNum = false;
   /**
    * This function is run when the robot is first started up and should be used for any
    * initialization code.
@@ -68,9 +76,9 @@ public class Robot extends TimedRobot {
     double area = ta.getDouble(0.0);
 
     //post to smart dashboard periodically
-    SmartDashboard.putNumber("LimelightX", x);
-    SmartDashboard.putNumber("LimelightY", y);
-    SmartDashboard.putNumber("LimelightArea", area);
+    SmartDashboard.putNumber("Limelight_X", x);
+    SmartDashboard.putNumber("Limelight_Y", y);
+    SmartDashboard.putNumber("Limelight_Area", area);
   }
 
   /**
@@ -98,26 +106,18 @@ public class Robot extends TimedRobot {
     double x = tx.getDouble(0.0);
     double isTarget = tv.getDouble(0.0);
     if(isTarget == 0.0){
-      left1.set(ControlMode.PercentOutput, 0);
-      left2.set(ControlMode.PercentOutput, 0);
-      right1.set(ControlMode.PercentOutput, 0);
-      right2.set(ControlMode.PercentOutput, 0);
+      left.set(0);
+      right.set(0);
     }else {
       if (x > 6){
-      left1.set(ControlMode.PercentOutput, 0.3);
-      left2.set(ControlMode.PercentOutput, 0.3);
-      right1.set(ControlMode.PercentOutput, 0);
-      right2.set(ControlMode.PercentOutput, 0);
+        left.set(0.3);
+        right.set(0);
       }else if(x < -6){
-      right1.set(ControlMode.PercentOutput, -0.3);
-      right2.set(ControlMode.PercentOutput, -0.3);
-      left1.set(ControlMode.PercentOutput, 0);
-      left2.set(ControlMode.PercentOutput, 0);
+        right.set(-0.3);
+        left.set(0);
       }else{
-        right1.set(ControlMode.PercentOutput, 0);
-        right2.set(ControlMode.PercentOutput, 0);
-        left1.set(ControlMode.PercentOutput, 0);
-        left2.set(ControlMode.PercentOutput, 0);
+        right.set(0);
+        left.set(0);
 
       }
     }
@@ -126,15 +126,14 @@ public class Robot extends TimedRobot {
   /** This function is called once when teleop is enabled. */
   @Override
   public void teleopInit() {
-
+    
     // shooterCam.setSelectedSensorPosition(0);
   }
-
   /** This function is called periodically during operator control. */
   @Override
   public void teleopPeriodic() {
-    double leftStick = joystick.getRawAxis(1);
-    double rightStick = joystick.getRawAxis(5);
+    double leftStick = joystick2.getRawAxis(1);
+    double rightStick = joystick2.getRawAxis(5);
     leftStick = leftStick * -1;
 
   // squares the motor power; easier to use low speeds, but high speed is uneffected
@@ -149,16 +148,13 @@ public class Robot extends TimedRobot {
         rightStick = rightStick * rightStick * -1;
       }
     
-    left1.set(ControlMode.PercentOutput, leftStick);
-    left2.set(ControlMode.PercentOutput, leftStick);
+    left.set(leftStick);
     
     // if you press A, all wheels are controled by left stick (makes sure that you drive straight)
-    if(joystick.getRawButton(5)){
-      right1.set(ControlMode.PercentOutput, -leftStick);
-      right2.set(ControlMode.PercentOutput, -leftStick);
+    if(joystick2.getRawButton(4)){
+      right.set(-leftStick);
     }else{
-    right1.set(ControlMode.PercentOutput, rightStick);
-    right2.set(ControlMode.PercentOutput, rightStick);
+    right.set(rightStick);
     }
 
     if(joystick.getRawButton(1)){
@@ -180,23 +176,31 @@ public class Robot extends TimedRobot {
     }
 
     SmartDashboard.putNumber("encoder", shooterCam.getSelectedSensorPosition());
-//     if(joystick.getRawButton(4)){
-//       // shooterCam.set(ControlMode.PercentOutput, -0.1);
+    
+      if(joystick.getRawButton(6) && shooterCam.getSelectedSensorPosition() > 0){
+        shooterCam.set(ControlMode.PercentOutput, -0.4);
+        System.out.println("Button 6 is pressed!!!");
+        shootPowNum = true;
+      }
 
-// shooterCam.set(TalonSRXControlMode.Position, 20000);
-// // System.out.println(shooterCam.getSelectedSensorPosition());
-// System.out.println(shooterCam.getSelectedSensorVelocity());
-//     }else{
-//       // shooterCam.set(ControlMode.PercentOutput, 0);
-//     }
+      if(shootPowNum == true){
+        if(shooterCam.getSelectedSensorPosition() < -16000){
+          shootPowNum = false;
+          shooterCam.set(ControlMode.PercentOutput, 0.4);
+          shootPowNumTwo = true;
+        }
+      }
+      if(shooterCam.getSelectedSensorPosition() > 0 && shootPowNumTwo == true){
+        shooterCam.set(ControlMode.PercentOutput, 0);
+        shootPowNumTwo = false;
+      }
 
-    // if(joystick.getRawButton(6) && shooterCam.getSelectedSensorPosition() < 0){
-    //   shooterCam.set(ControlMode.PercentOutput, 0.2);
-    // } else if (joystick.getRawButton(5) && shooterCam.getSelectedSensorPosition() > -16000) {
-    //   shooterCam.set(ControlMode.PercentOutput, -0.2);
-    // } else {
-    //   shooterCam.set(ControlMode.PercentOutput, 0);
-    // }
+      if(joystick.getRawButton(7) && shooterCam.getSelectedSensorPosition() < 0){
+        shooterCam.set(ControlMode.PercentOutput, 0.3);
+      }else if(joystick.getRawButton(7)){
+        shooterCam.set(ControlMode.PercentOutput, 0);
+      }
+
 
     //  ORIGINAL DRIVING CODE:
     // double rawAxis0 = joystick.getRawAxis(0);
@@ -238,8 +242,10 @@ public class Robot extends TimedRobot {
   @Override
   public void testPeriodic() {
 
-    if(joystick.getRawButton(1)){
-      shooterCam.set(ControlMode.Position, 100);
+    if(joystick.getRawButton(7)){
+      shooterCam.set(ControlMode.PercentOutput, 0.2);
+    }else{
+      shooterCam.set(ControlMode.PercentOutput, 0);
     }
 
   }
