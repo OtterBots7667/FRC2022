@@ -21,6 +21,7 @@ import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.motorcontrol.MotorControllerGroup;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
@@ -41,8 +42,8 @@ public class Robot extends TimedRobot {
   private TalonFX shooterPower = new TalonFX(11);
   private TalonSRX shooterCam = new TalonSRX(0);
 
-  private Joystick joystick = new Joystick(0);
-  private Joystick joystick2 = new Joystick(1);
+  private Joystick joystickButtons = new Joystick(1);
+  private Joystick joystickDriver = new Joystick(0);
 
   boolean shootPowNumTwo = false;
   boolean shootPowNum = false;
@@ -52,7 +53,7 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void robotInit() {
-  }
+    }
 
   /**
    * This function is called every robot packet, no matter the mode. Use this for items like
@@ -123,17 +124,17 @@ public class Robot extends TimedRobot {
     }
   }
 
-  /** This function is called once when teleop is enabled. */
+  // This function is called once when teleop is enabled.
   @Override
-  public void teleopInit() {
-    
-    // shooterCam.setSelectedSensorPosition(0);
-  }
-  /** This function is called periodically during operator control. */
+  public void teleopInit() {}
+
+  // This function is called periodically during operator control.
   @Override
   public void teleopPeriodic() {
-    double leftStick = joystick2.getRawAxis(1);
-    double rightStick = joystick2.getRawAxis(5);
+
+    // Drive code
+    double leftStick = joystickDriver.getRawAxis(1);
+    double rightStick = joystickDriver.getRawAxis(5);
     leftStick = leftStick * -1;
 
   // squares the motor power; easier to use low speeds, but high speed is uneffected
@@ -151,40 +152,43 @@ public class Robot extends TimedRobot {
     left.set(leftStick);
     
     // if you press A, all wheels are controled by left stick (makes sure that you drive straight)
-    if(joystick2.getRawButton(4)){
+    if(joystickDriver.getRawButton(4) || joystickDriver.getRawButton(1)){
       right.set(-leftStick);
     }else{
     right.set(rightStick);
     }
 
-    if(joystick.getRawButton(1)){
+
+    // Intake
+    if(joystickButtons.getRawButton(3)){
       intake.set(ControlMode.PercentOutput, -0.5);
     }else{
       intake.set(ControlMode.PercentOutput, 0);
     }
 
-    if(joystick.getRawButton(2)){
+    // Transfer code
+    if(joystickButtons.getRawButton(4)){
       transfer.set(ControlMode.PercentOutput, -1);
     }else{
       transfer.set(ControlMode.PercentOutput, 0);
     }
 
-    if(joystick.getRawButton(3)){
+    // Shooter code
+    if(joystickButtons.getRawButton(2)){
     shooterPower.set(ControlMode.PercentOutput, -0.65);
     }else{
     shooterPower.set(ControlMode.PercentOutput, 0);
     }
 
-    SmartDashboard.putNumber("encoder", shooterCam.getSelectedSensorPosition());
-    
-      if(joystick.getRawButton(6) && shooterCam.getSelectedSensorPosition() > 0){
+    // Cam code   
+      if(joystickButtons.getRawButton(5) && shooterCam.getSelectedSensorPosition() >= 0){
         shooterCam.set(ControlMode.PercentOutput, -0.4);
         System.out.println("Button 6 is pressed!!!");
         shootPowNum = true;
       }
 
       if(shootPowNum == true){
-        if(shooterCam.getSelectedSensorPosition() < -16000){
+        if(shooterCam.getSelectedSensorPosition() < -20000){
           shootPowNum = false;
           shooterCam.set(ControlMode.PercentOutput, 0.4);
           shootPowNumTwo = true;
@@ -195,9 +199,13 @@ public class Robot extends TimedRobot {
         shootPowNumTwo = false;
       }
 
-      if(joystick.getRawButton(7) && shooterCam.getSelectedSensorPosition() < 0){
+      SmartDashboard.putNumber("Encoder_Position", shooterCam.getSelectedSensorPosition());
+
+      // Cam reset code
+      // Use the reset if the Cam isn't working
+      if(joystickButtons.getRawButton(6) && shooterCam.getSelectedSensorPosition() < 0){
         shooterCam.set(ControlMode.PercentOutput, 0.3);
-      }else if(joystick.getRawButton(7)){
+      }else if(joystickButtons.getRawButton(6)){
         shooterCam.set(ControlMode.PercentOutput, 0);
       }
 
@@ -242,7 +250,7 @@ public class Robot extends TimedRobot {
   @Override
   public void testPeriodic() {
 
-    if(joystick.getRawButton(7)){
+    if(joystickButtons.getRawButton(6)){
       shooterCam.set(ControlMode.PercentOutput, 0.2);
     }else{
       shooterCam.set(ControlMode.PercentOutput, 0);
