@@ -45,8 +45,9 @@ public class Robot extends TimedRobot {
   private Joystick joystickButtons = new Joystick(1);
   private Joystick joystickDriver = new Joystick(0);
 
-  boolean shootPowNumTwo = false;
-  boolean shootPowNum = false;
+  boolean CamVariable = false;
+  boolean CamVariableTwo = false;
+  boolean CamIsOn = false;
   /**
    * This function is run when the robot is first started up and should be used for any
    * initialization code.
@@ -181,22 +182,24 @@ public class Robot extends TimedRobot {
     }
 
     // Cam code   
-      if(joystickButtons.getRawButton(5) && shooterCam.getSelectedSensorPosition() >= 0){
+      if(joystickButtons.getRawButton(5) && shooterCam.getSelectedSensorPosition() >= 0 && CamIsOn == false){
         shooterCam.set(ControlMode.PercentOutput, -0.4);
         System.out.println("Button 6 is pressed!!!");
-        shootPowNum = true;
+        CamIsOn = true;
+        CamVariable = true;
       }
 
-      if(shootPowNum == true){
+      if(CamVariable == true){
         if(shooterCam.getSelectedSensorPosition() < -20000){
-          shootPowNum = false;
+          CamVariable = false;
           shooterCam.set(ControlMode.PercentOutput, 0.4);
-          shootPowNumTwo = true;
+          CamVariableTwo = true;
         }
       }
-      if(shooterCam.getSelectedSensorPosition() > 0 && shootPowNumTwo == true){
+      if(shooterCam.getSelectedSensorPosition() > 0 && CamVariableTwo == true){
         shooterCam.set(ControlMode.PercentOutput, 0);
-        shootPowNumTwo = false;
+        CamVariableTwo = false;
+        CamIsOn = false;
       }
 
       SmartDashboard.putNumber("Encoder_Position", shooterCam.getSelectedSensorPosition());
