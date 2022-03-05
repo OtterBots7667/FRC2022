@@ -45,7 +45,7 @@ public class Robot extends TimedRobot {
   boolean CamVariable = false;
   boolean CamVariableTwo = false;
   boolean CamIsOn = false;
-  double CamRemainder = 0;
+  double  CamRemainder = 0;
   boolean CamRemainderIsGood = false;
   boolean CamHasRotated= false;
   boolean CamFixer = false;
@@ -207,7 +207,7 @@ public class Robot extends TimedRobot {
     CamRemainder = shooterCam.getSelectedSensorPosition() % -40960;
 
     // CamRemainderIsGood = true when th ecam is in starting position
-    if(CamRemainder <= 0 && CamRemainder >= -2000){
+    if(CamRemainder <= 100 && CamRemainder >= -2500){
       CamRemainderIsGood = true;
     }else{
       CamRemainderIsGood = false;
@@ -231,7 +231,7 @@ public class Robot extends TimedRobot {
         CamHasRotated = false;
       }
 
-        // System.out.println(CamRemainder);
+        System.out.println(CamRemainder);
 
       // OLD CAM CODE
       // if(joystickButtons.getRawButton(5) && shooterCam.getSelectedSensorPosition() >= 0 && CamIsOn == false){
