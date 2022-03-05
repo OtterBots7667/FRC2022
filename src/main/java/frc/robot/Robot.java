@@ -4,8 +4,6 @@
 
 package frc.robot;
 
-import java.beans.Encoder;
-
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.TalonSRXControlMode;
@@ -21,7 +19,6 @@ import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.motorcontrol.MotorControllerGroup;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
@@ -48,6 +45,15 @@ public class Robot extends TimedRobot {
   boolean CamVariable = false;
   boolean CamVariableTwo = false;
   boolean CamIsOn = false;
+  double CamRemainder = 0;
+  boolean CamRemainderIsGood = false;
+  boolean CamHasRotated= false;
+  boolean CamFixer = false;
+
+  // public Robot() {
+  //   super(0.02);
+  // }
+
   /**
    * This function is run when the robot is first started up and should be used for any
    * initialization code.
@@ -98,31 +104,45 @@ public class Robot extends TimedRobot {
 
   }
 
-  /** This function is called periodically during autonomous. */
+  int counter = 0;
+  
   @Override
   public void autonomousPeriodic() {
+    // if(counter < 150){
+    //   left.set(0.25);
+    //   right.set(-0.25);
+    // }else if(counter < 250){
+    //   left.set(-0.25);
+    //   right.set(0.25); 
+    // }else{
+    //   left.set(0);
+    //   right.set(0);
+    // }
 
-    NetworkTable table = NetworkTableInstance.getDefault().getTable("limelight");
-    NetworkTableEntry tx = table.getEntry("tx");
-    NetworkTableEntry tv = table.getEntry("tv");
-    double x = tx.getDouble(0.0);
-    double isTarget = tv.getDouble(0.0);
-    if(isTarget == 0.0){
-      left.set(0);
-      right.set(0);
-    }else {
-      if (x > 6){
-        left.set(0.3);
-        right.set(0);
-      }else if(x < -6){
-        right.set(-0.3);
-        left.set(0);
-      }else{
-        right.set(0);
-        left.set(0);
 
-      }
-    }
+    counter++;
+
+    // NetworkTable table = NetworkTableInstance.getDefault().getTable("limelight");
+    // NetworkTableEntry tx = table.getEntry("tx");
+    // NetworkTableEntry tv = table.getEntry("tv");
+    // double x = tx.getDouble(0.0);
+    // double isTarget = tv.getDouble(0.0);
+    // if(isTarget == 0.0){
+    //   left.set(0);
+    //   right.set(0);
+    // }else {
+    //   if (x > 6){
+    //     left.set(0.3);
+    //     right.set(0);
+    //   }else if(x < -6){
+    //     right.set(-0.3);
+    //     left.set(0);
+    //   }else{
+    //     right.set(0);
+    //     left.set(0);
+    //
+    //}
+    //}
   }
 
   // This function is called once when teleop is enabled.
@@ -181,38 +201,79 @@ public class Robot extends TimedRobot {
     shooterPower.set(ControlMode.PercentOutput, 0);
     }
 
-    // Cam code   
-      if(joystickButtons.getRawButton(5) && shooterCam.getSelectedSensorPosition() >= 0 && CamIsOn == false){
-        shooterCam.set(ControlMode.PercentOutput, -0.4);
-        System.out.println("Button 6 is pressed!!!");
-        CamIsOn = true;
-        CamVariable = true;
+    // Cam code
+// Every time the cam completes a rotation, the positionreturns to 0
+// (It doesn't really set the current position to 0, it just tells the code to consider it to be 0)
+    CamRemainder = shooterCam.getSelectedSensorPosition() % -40960;
+
+    // CamRemainderIsGood = true when th ecam is in starting position
+    if(CamRemainder <= 0 && CamRemainder >= -2000){
+      CamRemainderIsGood = true;
+    }else{
+      CamRemainderIsGood = false;
+    }
+
+    // CamHasRotated = true when the cam is part way through a rotation
+    // CamHasRotated = false when the cam completes a rotation
+    if(CamRemainder <= -19000 && CamRemainder >= -21000){
+     CamHasRotated = true;
+    }
+    // When you press button 5, th ecam rotates 360*
+    if(joystickButtons.getRawButton(5) && !CamIsOn && CamRemainderIsGood){
+      shooterCam.set(ControlMode.PercentOutput, -0.4);
+      CamIsOn = true;
+    }
+  
+    // Cam stops when it completes a rotation
+      if(CamRemainderIsGood && CamIsOn && CamHasRotated){
+        shooterCam.set(ControlMode.PercentOutput, 0);
+        CamIsOn = false;
+        CamHasRotated = false;
       }
 
-      if(CamVariable == true){
-        if(shooterCam.getSelectedSensorPosition() < -20000){
-          CamVariable = false;
-          shooterCam.set(ControlMode.PercentOutput, 0.4);
-          CamVariableTwo = true;
-        }
-      }
-      if(shooterCam.getSelectedSensorPosition() > 0 && CamVariableTwo == true){
-        shooterCam.set(ControlMode.PercentOutput, 0);
-        CamVariableTwo = false;
-        CamIsOn = false;
-      }
+        // System.out.println(CamRemainder);
+
+      // OLD CAM CODE
+      // if(joystickButtons.getRawButton(5) && shooterCam.getSelectedSensorPosition() >= 0 && CamIsOn == false){
+      //   shooterCam.set(ControlMode.PercentOutput, -0.4);
+      //   System.out.println("Button 6 is pressed!!!");
+      //   CamIsOn = true;
+      //   CamVariable = true;
+      // }
+      // if(CamVariable == true){
+      //   if(shooterCam.getSelectedSensorPosition() < -20000){
+      //     CamVariable = false;
+      //     shooterCam.set(ControlMode.PercentOutput, 0.4);
+      //     CamVariableTwo = true;
+      //   }
+      // }
+      // if(shooterCam.getSelectedSensorPosition() > 0 && CamVariableTwo == true){
+      //   shooterCam.set(ControlMode.PercentOutput, 0);
+      //   CamVariableTwo = false;
+      //   CamIsOn = false;
+      // }
 
       SmartDashboard.putNumber("Encoder_Position", shooterCam.getSelectedSensorPosition());
 
       // Cam reset code
-      // Use the reset if the Cam isn't working
-      if(joystickButtons.getRawButton(6) && shooterCam.getSelectedSensorPosition() < 0){
-        shooterCam.set(ControlMode.PercentOutput, 0.3);
-      }else if(joystickButtons.getRawButton(6)){
-        shooterCam.set(ControlMode.PercentOutput, 0);
+      // Use this if the Cam gets into the wrong position
+      if(joystickButtons.getRawButton(6) && joystickButtons.getRawButton(1)){
+
+        CamFixer = true;
+
+        if(joystickButtons.getRawAxis(1) == 1){
+          shooterCam.set(ControlMode.PercentOutput, 0.2);
+        }else if(joystickButtons.getRawAxis(1) == -1){
+          shooterCam.set(ControlMode.PercentOutput, -0.2);
+        }else{
+          shooterCam.set(ControlMode.PercentOutput, 0);
+        }
       }
 
-
+      if(!joystickButtons.getRawButton(6) && !joystickButtons.getRawButton(1) && CamFixer == true){
+        shooterCam.setSelectedSensorPosition(0);
+        CamFixer = false;
+      }
     //  ORIGINAL DRIVING CODE:
     // double rawAxis0 = joystick.getRawAxis(0);
     // if (rawAxis0 < 0.1 && rawAxis0 > -0.1) {
@@ -234,22 +295,17 @@ public class Robot extends TimedRobot {
 
   }
 
-  /** This function is called once when the robot is disabled. */
   @Override
   public void disabledInit() {}
 
-  /** This function is called periodically when disabled. */
   @Override
   public void disabledPeriodic() {}
 
-  /** This function is called once when test mode is enabled. */
   @Override
   public void testInit() {
-    // shooterCam.set(ControlMode.Velocity, 100);
   
   }
 
-  /** This function is called periodically during test mode. */
   @Override
   public void testPeriodic() {
 
