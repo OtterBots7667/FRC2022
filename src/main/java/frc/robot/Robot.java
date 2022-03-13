@@ -4,6 +4,7 @@
 
 package frc.robot;
 
+import com.ctre.phoenix.led.CANdle.VBatOutputMode;
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.TalonSRXControlMode;
@@ -17,6 +18,7 @@ import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.livewindow.LiveWindow;
 import edu.wpi.first.wpilibj.motorcontrol.MotorControllerGroup;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
@@ -49,6 +51,10 @@ public class Robot extends TimedRobot {
   boolean CamRemainderIsGood = false;
   boolean CamHasRotated= false;
   boolean CamFixer = false;
+
+  boolean xIsGood = false;
+  boolean orientation = false;
+  boolean orientation2 = false;
 
   // public Robot() {
   //   super(0.02);
@@ -153,6 +159,17 @@ public class Robot extends TimedRobot {
   @Override
   public void teleopPeriodic() {
 
+    NetworkTable table = NetworkTableInstance.getDefault().getTable("limelight");
+    NetworkTableEntry tx = table.getEntry("tx");
+    NetworkTableEntry ty = table.getEntry("ty");
+    NetworkTableEntry tv = table.getEntry("tv");
+
+    //read values periodically
+    double x = tx.getDouble(0.0);
+    double y = ty.getDouble(0.0);
+    boolean v = tv.getDouble(0) == 1;
+
+
     // Drive code
     double leftStick = joystickDriver.getRawAxis(1);
     double rightStick = joystickDriver.getRawAxis(5);
@@ -182,7 +199,7 @@ public class Robot extends TimedRobot {
 
     // Intake
     if(joystickButtons.getRawButton(3)){
-      intake.set(ControlMode.PercentOutput, -0.5);
+      intake.set(ControlMode.PercentOutput, -0.7);
     }else{
       intake.set(ControlMode.PercentOutput, 0);
     }
@@ -231,7 +248,7 @@ public class Robot extends TimedRobot {
         CamHasRotated = false;
       }
 
-        System.out.println(CamRemainder);
+        // System.out.println(CamRemainder);
 
       // OLD CAM CODE
       // if(joystickButtons.getRawButton(5) && shooterCam.getSelectedSensorPosition() >= 0 && CamIsOn == false){
@@ -262,9 +279,9 @@ public class Robot extends TimedRobot {
         CamFixer = true;
 
         if(joystickButtons.getRawAxis(1) == 1){
-          shooterCam.set(ControlMode.PercentOutput, 0.2);
-        }else if(joystickButtons.getRawAxis(1) == -1){
           shooterCam.set(ControlMode.PercentOutput, -0.2);
+        }else if(joystickButtons.getRawAxis(1) == -1){
+          shooterCam.set(ControlMode.PercentOutput, 0.2);
         }else{
           shooterCam.set(ControlMode.PercentOutput, 0);
         }
@@ -274,6 +291,64 @@ public class Robot extends TimedRobot {
         shooterCam.setSelectedSensorPosition(0);
         CamFixer = false;
       }
+
+
+      if(joystickDriver.getRawButton(5) && joystickDriver.getRawButton(6)){
+        // System.out.println("Buttons are pressed");
+        orientation = true;
+        orientation2 = true;
+      }
+  
+// if(!v && orientation){
+//   orientation = false;
+// }
+
+        if(orientation){
+          if((x >= -3 && x <= 3) || !v){
+            xIsGood = true;
+            right.set(0);
+            left.set(0);
+            orientation = false;
+            System.out.println("and stop");
+          }else if(x < -3){
+            right.set(-0.4);
+            left.set(-0.4);
+            System.out.println("to the left");
+          }else if(x > 3){
+            right.set(0.4);
+            left.set(0.4);
+            System.out.println("to the right");
+          }
+        }
+  
+        if(xIsGood && orientation2){
+  
+        if((y <= 20 && y >= 12) || !v){
+          right.set(0);
+          left.set(0);
+          xIsGood = false;
+          if((x >= -3 && x <= 3) || !v){
+          }else{
+            orientation = true;
+            orientation2 = true;
+          }
+          }else if(y > 20){
+            right.set(0.3);
+            left.set(-0.3);
+          }else if(y < 12){
+            right.set(-0.3);
+            left.set(0.3);
+          }
+  
+        }
+
+if(joystickDriver.getRawButton(7) && joystickDriver.getRawButton(8)){
+  orientation = false;
+  orientation2 = false;
+  right.set(0);
+  left.set(0);
+}
+
     //  ORIGINAL DRIVING CODE:
     // double rawAxis0 = joystick.getRawAxis(0);
     // if (rawAxis0 < 0.1 && rawAxis0 > -0.1) {
@@ -303,17 +378,61 @@ public class Robot extends TimedRobot {
 
   @Override
   public void testInit() {
-  
+  LiveWindow.setEnabled(false);
   }
 
   @Override
   public void testPeriodic() {
 
-    if(joystickButtons.getRawButton(6)){
-      shooterCam.set(ControlMode.PercentOutput, 0.2);
-    }else{
-      shooterCam.set(ControlMode.PercentOutput, 0);
+    NetworkTable table = NetworkTableInstance.getDefault().getTable("limelight");
+    NetworkTableEntry tx = table.getEntry("tx");
+    NetworkTableEntry ty = table.getEntry("ty");
+
+    //read values periodically
+    double x = tx.getDouble(0.0);
+    double y = ty.getDouble(0.0);
+
+
+    // System.out.println(x);
+
+    if(joystickDriver.getRawButton(5) && joystickDriver.getRawButton(6)){
+      // System.out.println("Buttons are pressed");
+      orientation = true;
     }
 
+      if(orientation){
+        if(x >= -3 && x <= 3){
+          xIsGood = true;
+          right.set(0);
+          left.set(0);
+          orientation = false;
+          System.out.println("It's working");
+        }else if(x < -3){
+          right.set(-0.4);
+          left.set(-0.4);
+          System.out.println("hmmm");
+        }else if(x > 3){
+          right.set(0.4);
+          left.set(0.4);
+          System.out.println("huh");
+        }
+      }
+
+      if(xIsGood){
+
+      if(y <= 20 && y >= 12){
+        right.set(0);
+        left.set(0);
+        xIsGood = false;
+        }else if(y > 20){
+          right.set(0.2);
+          left.set(-0.2);
+        }else if(y < 12){
+          right.set(-0.2);
+          left.set(0.2);
+        }
+
+      }
+    
   }
 }
