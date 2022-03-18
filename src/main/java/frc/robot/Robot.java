@@ -4,10 +4,10 @@
 
 package frc.robot;
 
-import com.ctre.phoenix.led.CANdle.VBatOutputMode;
+// import com.ctre.phoenix.led.CANdle.VBatOutputMode;
 import com.ctre.phoenix.motorcontrol.ControlMode;
-import com.ctre.phoenix.motorcontrol.FeedbackDevice;
-import com.ctre.phoenix.motorcontrol.TalonSRXControlMode;
+// import com.ctre.phoenix.motorcontrol.FeedbackDevice;
+// import com.ctre.phoenix.motorcontrol.TalonSRXControlMode;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.ctre.phoenix.motorcontrol.can.VictorSPX;
@@ -287,6 +287,9 @@ public class Robot extends TimedRobot {
         }
       }
 
+
+      // Auto-orientation
+      // Press these buttons to make the robot automaticly move to shooting position
       if(!joystickButtons.getRawButton(6) && !joystickButtons.getRawButton(1) && CamFixer == true){
         shooterCam.setSelectedSensorPosition(0);
         CamFixer = false;
@@ -298,11 +301,8 @@ public class Robot extends TimedRobot {
         orientation = true;
         orientation2 = true;
       }
-  
-// if(!v && orientation){
-//   orientation = false;
-// }
 
+        // Horizontal orientation
         if(orientation){
           if((x >= -3 && x <= 3) || !v){
             xIsGood = true;
@@ -321,9 +321,10 @@ public class Robot extends TimedRobot {
           }
         }
   
+        // Vertical orientation
         if(xIsGood && orientation2){
   
-        if((y <= 20 && y >= 12) || !v){
+        if((y <= 20 && y >= 14) || !v){
           right.set(0);
           left.set(0);
           xIsGood = false;
@@ -335,13 +336,14 @@ public class Robot extends TimedRobot {
           }else if(y > 20){
             right.set(0.3);
             left.set(-0.3);
-          }else if(y < 12){
+          }else if(y < 14){
             right.set(-0.3);
             left.set(0.3);
           }
   
         }
 
+        // Press th emenu and window buttons to stop auto-orientation
 if(joystickDriver.getRawButton(7) && joystickDriver.getRawButton(8)){
   orientation = false;
   orientation2 = false;

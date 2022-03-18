@@ -1,0 +1,77 @@
+<xml version="1.0">
+<dashboard>
+	<static-widget class="edu.wpi.first.smartdashboard.gui.elements.Label">
+		<location x="329" y="80"/>
+		<property name="Text" value="14   -   20"/>
+	</static-widget>
+	<static-widget class="edu.wpi.first.smartdashboard.gui.elements.Label">
+		<location x="333" y="54"/>
+		<property name="Text" value="2   -   -2"/>
+	</static-widget>
+	<static-widget class="edu.wpi.first.smartdashboard.gui.elements.Label">
+		<location x="241" y="62"/>
+		<width>80</width>
+		<height>14</height>
+		<property name="Text" value="Shooting Range:"/>
+	</static-widget>
+	<static-widget class="edu.wpi.first.smartdashboard.gui.elements.Label">
+		<location x="19" y="22"/>
+		<property name="Text" value="Connection Indicator:"/>
+	</static-widget>
+	<static-widget class="edu.wpi.first.smartdashboard.gui.elements.ConnectionIndicator">
+		<location x="128" y="15"/>
+	</static-widget>
+	<static-widget class="edu.wpi.first.smartdashboard.gui.elements.CameraServerViewer">
+		<location x="552" y="4"/>
+		<width>776</width>
+		<height>473</height>
+		<property name="Camera Choice" value="limelight"/>
+		<property name="Selected Camera Path" value="http://10.76.67.11:5800"/>
+	</static-widget>
+	<widget field="Limelight_Area" type="Number" class="edu.wpi.first.smartdashboard.gui.elements.TextBox">
+		<location x="370" y="108"/>
+		<height>20</height>
+	</widget>
+	<widget field="Encoder_Position" type="Number" class="edu.wpi.first.smartdashboard.gui.elements.TextBox">
+		<location x="15" y="82"/>
+		<height>20</height>
+	</widget>
+	<widget field="limelight_Interface" type="String" class="edu.wpi.first.smartdashboard.gui.elements.TextBox">
+		<location x="352" y="184"/>
+	</widget>
+	<widget field="limelight_Stream" type="String" class="edu.wpi.first.smartdashboard.gui.elements.TextBox">
+		<location x="363" y="155"/>
+	</widget>
+	<widget field="Limelight_Y" type="Number" class="edu.wpi.first.smartdashboard.gui.elements.TextBox">
+		<location x="387" y="79"/>
+	</widget>
+	<widget field="Limelight_X" type="Number" class="edu.wpi.first.smartdashboard.gui.elements.TextBox">
+		<location x="387" y="50"/>
+	</widget>
+	<widget field="limelight_PipelineName" type="String" class="edu.wpi.first.smartdashboard.gui.elements.TextBox">
+		<location x="333" y="5"/>
+	</widget>
+</dashboard>
+<live-window>
+	<widget field="Ungrouped" type="LW Subsystem" class="edu.wpi.first.smartdashboard.livewindow.elements.LWSubsystem">
+		<widget field="MotorControllerGroup[1]" type="Motor Controller" class="edu.wpi.first.smartdashboard.livewindow.elements.SpeedController">
+			<location x="0" y="0"/>
+			<height>0</height>
+			<width>0</width>
+		</widget>
+		<widget field="MotorControllerGroup[1]" type="Motor Controller" class="edu.wpi.first.smartdashboard.livewindow.elements.SpeedController">
+			<location x="0" y="0"/>
+			<height>0</height>
+			<width>0</width>
+		</widget>
+		<widget field="MotorControllerGroup[2]" type="Motor Controller" class="edu.wpi.first.smartdashboard.livewindow.elements.SpeedController">
+			<location x="6" y="16"/>
+			<height>45</height>
+			<width>293</width>
+		</widget>
+		<location x="18" y="20"/>
+		<width>305</width>
+		<height>67</height>
+	</widget>
+</live-window>
+</xml>
