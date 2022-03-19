@@ -56,6 +56,11 @@ public class Robot extends TimedRobot {
   boolean orientation = false;
   boolean orientation2 = false;
 
+  boolean autoCam1 = false;
+  boolean autoCam2 = false;
+  double  autoCamRemainder = 0;
+  int     counter = 0;
+
   // public Robot() {
   //   super(0.02);
   // }
@@ -105,26 +110,55 @@ public class Robot extends TimedRobot {
    * below with additional strings. If using the SendableChooser make sure to add them to the
    * chooser code above as well.
    */
+
+  
+
   @Override
   public void autonomousInit() {
-
+  autoCam1 = false;
+  autoCam2 = false;
+  counter = 0;
   }
 
-  int counter = 0;
-  
   @Override
   public void autonomousPeriodic() {
-    // if(counter < 150){
-    //   left.set(0.25);
-    //   right.set(-0.25);
-    // }else if(counter < 250){
-    //   left.set(-0.25);
-    //   right.set(0.25); 
-    // }else{
-    //   left.set(0);
-    //   right.set(0);
-    // }
 
+    autoCamRemainder = shooterCam.getSelectedSensorPosition() % -40960;
+
+  if (counter < 100){
+
+      left.set(-0.25);
+      right.set(0.25);
+      shooterPower.set(ControlMode.PercentOutput, -0.65);    
+
+    }else if(counter < 200){
+
+      left.set(0);
+      right.set(0);
+
+      if(autoCamRemainder <= -19000 && autoCamRemainder >= -21000){
+        autoCam1 = true;
+      }
+
+      if(autoCamRemainder <= 100 && autoCamRemainder >= -2500 && autoCam1){
+        shooterCam.set(ControlMode.PercentOutput, 0);
+        autoCam1 = false;
+        autoCam2 = true;
+      }else if(!autoCam2){
+        shooterCam.set(ControlMode.PercentOutput, -0.4);
+      }
+
+    }else if(counter < 300){
+
+      shooterPower.set(ControlMode.PercentOutput, 0);
+
+      left.set(-0.25);
+      right.set(0.25);
+
+    }else{
+      left.set(0);
+      right.set(0);
+    }
 
     counter++;
 
@@ -235,7 +269,7 @@ public class Robot extends TimedRobot {
     if(CamRemainder <= -19000 && CamRemainder >= -21000){
      CamHasRotated = true;
     }
-    // When you press button 5, th ecam rotates 360*
+    // When you press button 5, the cam rotates 360*
     if(joystickButtons.getRawButton(5) && !CamIsOn && CamRemainderIsGood){
       shooterCam.set(ControlMode.PercentOutput, -0.4);
       CamIsOn = true;
