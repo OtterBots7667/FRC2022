@@ -44,6 +44,7 @@ public class Robot extends TimedRobot {
   private Joystick joystickButtons = new Joystick(1);
   private Joystick joystickDriver = new Joystick(0);
 
+  // Cam variables
   boolean CamVariable = false;
   boolean CamVariableTwo = false;
   boolean CamIsOn = false;
@@ -52,10 +53,12 @@ public class Robot extends TimedRobot {
   boolean CamHasRotated= false;
   boolean CamFixer = false;
 
+  // Auto-orientation variables
   boolean xIsGood = false;
   boolean orientation = false;
   boolean orientation2 = false;
 
+  // Autonomous variables
   boolean autoCam1 = false;
   boolean autoCam2 = false;
   double  autoCamRemainder = 0;
@@ -79,7 +82,6 @@ public class Robot extends TimedRobot {
    *
    * <p>This runs after the mode specific periodic functions, but before LiveWindow and
    * SmartDashboard integrated updating.
-   * 
    */
   @Override
   public void robotPeriodic() {
@@ -110,7 +112,6 @@ public class Robot extends TimedRobot {
    * below with additional strings. If using the SendableChooser make sure to add them to the
    * chooser code above as well.
    */
-
   
 
   @Override
@@ -125,12 +126,14 @@ public class Robot extends TimedRobot {
 
     autoCamRemainder = shooterCam.getSelectedSensorPosition() % -40960;
 
+    // Robot moves backwards slightly, shooter powers on
   if (counter < 100){
 
       left.set(-0.25);
       right.set(0.25);
       shooterPower.set(ControlMode.PercentOutput, -0.65);    
 
+    // Robot stops moving, cam spins and shoots the ball
     }else if(counter < 200){
 
       left.set(0);
@@ -148,6 +151,7 @@ public class Robot extends TimedRobot {
         shooterCam.set(ControlMode.PercentOutput, -0.4);
       }
 
+      // shooter turns off, robot moves backwards a bit more
     }else if(counter < 300){
 
       shooterPower.set(ControlMode.PercentOutput, 0);
@@ -155,6 +159,7 @@ public class Robot extends TimedRobot {
       left.set(-0.25);
       right.set(0.25);
 
+      // robot stops
     }else{
       left.set(0);
       right.set(0);
@@ -162,27 +167,6 @@ public class Robot extends TimedRobot {
 
     counter++;
 
-    // NetworkTable table = NetworkTableInstance.getDefault().getTable("limelight");
-    // NetworkTableEntry tx = table.getEntry("tx");
-    // NetworkTableEntry tv = table.getEntry("tv");
-    // double x = tx.getDouble(0.0);
-    // double isTarget = tv.getDouble(0.0);
-    // if(isTarget == 0.0){
-    //   left.set(0);
-    //   right.set(0);
-    // }else {
-    //   if (x > 6){
-    //     left.set(0.3);
-    //     right.set(0);
-    //   }else if(x < -6){
-    //     right.set(-0.3);
-    //     left.set(0);
-    //   }else{
-    //     right.set(0);
-    //     left.set(0);
-    //
-    //}
-    //}
   }
 
   // This function is called once when teleop is enabled.
@@ -204,7 +188,7 @@ public class Robot extends TimedRobot {
     boolean v = tv.getDouble(0) == 1;
 
 
-    // Drive code
+    // DRIVE CODE
     double leftStick = joystickDriver.getRawAxis(1);
     double rightStick = joystickDriver.getRawAxis(5);
     leftStick = leftStick * -1;
@@ -238,26 +222,26 @@ public class Robot extends TimedRobot {
       intake.set(ControlMode.PercentOutput, 0);
     }
 
-    // Transfer code
+    // Transfer
     if(joystickButtons.getRawButton(4)){
       transfer.set(ControlMode.PercentOutput, -1);
     }else{
       transfer.set(ControlMode.PercentOutput, 0);
     }
 
-    // Shooter code
+    // Shooter
     if(joystickButtons.getRawButton(2)){
     shooterPower.set(ControlMode.PercentOutput, -0.65);
     }else{
     shooterPower.set(ControlMode.PercentOutput, 0);
     }
 
-    // Cam code
-// Every time the cam completes a rotation, the positionreturns to 0
+    // Cam
+// Every time the cam completes a rotation, the position resets to 0
 // (It doesn't really set the current position to 0, it just tells the code to consider it to be 0)
     CamRemainder = shooterCam.getSelectedSensorPosition() % -40960;
 
-    // CamRemainderIsGood = true when th ecam is in starting position
+    // CamRemainderIsGood = true when the cam is in starting position
     if(CamRemainder <= 100 && CamRemainder >= -2500){
       CamRemainderIsGood = true;
     }else{
@@ -282,9 +266,9 @@ public class Robot extends TimedRobot {
         CamHasRotated = false;
       }
 
-        // System.out.println(CamRemainder);
 
       // OLD CAM CODE
+      //
       // if(joystickButtons.getRawButton(5) && shooterCam.getSelectedSensorPosition() >= 0 && CamIsOn == false){
       //   shooterCam.set(ControlMode.PercentOutput, -0.4);
       //   System.out.println("Button 6 is pressed!!!");
@@ -331,7 +315,6 @@ public class Robot extends TimedRobot {
 
 
       if(joystickDriver.getRawButton(5) && joystickDriver.getRawButton(6)){
-        // System.out.println("Buttons are pressed");
         orientation = true;
         orientation2 = true;
       }
@@ -377,7 +360,7 @@ public class Robot extends TimedRobot {
   
         }
 
-        // Press th emenu and window buttons to stop auto-orientation
+        // Press the menu and window buttons to stop auto-orientation (If it locks on to the wrong thing)
 if(joystickDriver.getRawButton(7) && joystickDriver.getRawButton(8)){
   orientation = false;
   orientation2 = false;
@@ -419,6 +402,8 @@ if(joystickDriver.getRawButton(7) && joystickDriver.getRawButton(8)){
 
   @Override
   public void testPeriodic() {
+
+// AUTO-ORIENTATION TESTING:
 
     NetworkTable table = NetworkTableInstance.getDefault().getTable("limelight");
     NetworkTableEntry tx = table.getEntry("tx");
