@@ -53,7 +53,6 @@ public class Robot extends TimedRobot {
   // Auto-orientation variables
   boolean xIsGood = false;
   boolean orientation = false;
-  boolean orientation2 = false;
 
   // Autonomous variables
   boolean autoCam1 = false;
@@ -312,7 +311,6 @@ public class Robot extends TimedRobot {
 
       if(joystickDriver.getRawButton(5) && joystickDriver.getRawButton(6)){
         orientation = true;
-        orientation2 = true;
       }
 
         // Horizontal orientation
@@ -322,29 +320,29 @@ public class Robot extends TimedRobot {
             right.set(0);
             left.set(0);
             orientation = false;
-            System.out.println("and stop");
+            // System.out.println("and stop");
           }else if(x < -3){
             right.set(-0.4);
             left.set(-0.4);
-            System.out.println("to the left");
+            // System.out.println("to the left");
           }else if(x > 3){
             right.set(0.4);
             left.set(0.4);
-            System.out.println("to the right");
+            // System.out.println("to the right");
           }
         }
   
         // Vertical orientation
-        if(xIsGood && orientation2){
+        if(xIsGood){
   
         if((y <= 21 && y >= 16) || !v){
           right.set(0);
           left.set(0);
-          xIsGood = false;
           if((x >= -3 && x <= 3) || !v){
+            xIsGood = false;
           }else{
             orientation = true;
-            orientation2 = true;
+            xIsGood = false;
           }
           }else if(y > 21){
             right.set(0.3);
@@ -356,10 +354,10 @@ public class Robot extends TimedRobot {
   
         }
 
-        // Press the menu and window buttons to stop auto-orientation (If it locks on to the wrong thing)
+        // Press the menu and window buttons at the same time to stop auto-orientation
+        // (if the Limelight locks on to the wrong thing)
 if(joystickDriver.getRawButton(7) && joystickDriver.getRawButton(8)){
   orientation = false;
-  orientation2 = false;
   right.set(0);
   left.set(0);
 }
