@@ -4,10 +4,7 @@
 
 package frc.robot;
 
-// import com.ctre.phoenix.led.CANdle.VBatOutputMode;
 import com.ctre.phoenix.motorcontrol.ControlMode;
-// import com.ctre.phoenix.motorcontrol.FeedbackDevice;
-// import com.ctre.phoenix.motorcontrol.TalonSRXControlMode;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.ctre.phoenix.motorcontrol.can.VictorSPX;
@@ -38,20 +35,20 @@ public class Robot extends TimedRobot {
   private MotorControllerGroup left = new MotorControllerGroup( new WPI_VictorSPX(7), new WPI_VictorSPX(10));
   private VictorSPX intake = new VictorSPX(0);
   private VictorSPX transfer = new VictorSPX(2);
-  private TalonFX shooterPower = new TalonFX(11);
-  private TalonSRX shooterCam = new TalonSRX(0);
+  private TalonFX shooter = new TalonFX(11);
+  private TalonSRX cam = new TalonSRX(0);
 
   private Joystick joystickButtons = new Joystick(1);
   private Joystick joystickDriver = new Joystick(0);
 
   // Cam variables
-  boolean CamVariable = false;
-  boolean CamVariableTwo = false;
-  boolean CamIsOn = false;
-  double  CamRemainder = 0;
-  boolean CamRemainderIsGood = false;
-  boolean CamHasRotated= false;
-  boolean CamFixer = false;
+  boolean camVariable = false;
+  boolean camVariableTwo = false;
+  boolean camIsOn = false;
+  double  camRemainder = 0;
+  boolean camRemainderIsGood = false;
+  boolean camHasRotated= false;
+  boolean camFixer = false;
 
   // Auto-orientation variables
   boolean xIsGood = false;
@@ -62,7 +59,7 @@ public class Robot extends TimedRobot {
   boolean autoCam1 = false;
   boolean autoCam2 = false;
   double  autoCamRemainder = 0;
-  int     counter = 0;
+  int     autoCounter = 0;
 
   // public Robot() {
   //   super(0.02);
@@ -118,23 +115,22 @@ public class Robot extends TimedRobot {
   public void autonomousInit() {
   autoCam1 = false;
   autoCam2 = false;
-  counter = 0;
+  autoCounter = 0;
   }
 
   @Override
   public void autonomousPeriodic() {
 
-    autoCamRemainder = shooterCam.getSelectedSensorPosition() % -40960;
+    autoCamRemainder = cam.getSelectedSensorPosition() % -40960;
 
     // Robot moves backwards slightly, shooter powers on
-  if (counter < 100){
-
+  if (autoCounter < 85){
       left.set(-0.25);
       right.set(0.25);
-      shooterPower.set(ControlMode.PercentOutput, -0.65);    
+      shooter.set(ControlMode.PercentOutput, -0.65);    
 
     // Robot stops moving, cam spins and shoots the ball
-    }else if(counter < 200){
+    }else if(autoCounter < 200){
 
       left.set(0);
       right.set(0);
@@ -144,17 +140,17 @@ public class Robot extends TimedRobot {
       }
 
       if(autoCamRemainder <= 100 && autoCamRemainder >= -2500 && autoCam1){
-        shooterCam.set(ControlMode.PercentOutput, 0);
+        cam.set(ControlMode.PercentOutput, 0);
         autoCam1 = false;
         autoCam2 = true;
       }else if(!autoCam2){
-        shooterCam.set(ControlMode.PercentOutput, -0.4);
+        cam.set(ControlMode.PercentOutput, -0.4);
       }
 
       // shooter turns off, robot moves backwards a bit more
-    }else if(counter < 300){
+    }else if(autoCounter < 350){
 
-      shooterPower.set(ControlMode.PercentOutput, 0);
+      shooter.set(ControlMode.PercentOutput, 0);
 
       left.set(-0.25);
       right.set(0.25);
@@ -165,7 +161,7 @@ public class Robot extends TimedRobot {
       right.set(0);
     }
 
-    counter++;
+    autoCounter++;
 
   }
 
@@ -197,12 +193,12 @@ public class Robot extends TimedRobot {
     if(leftStick > 0 ){
     leftStick = leftStick * leftStick;
     }else if (leftStick < 0){
-      leftStick = leftStick * leftStick * -1;
+      leftStick = leftStick * -leftStick;
     }
     if(rightStick > 0 ){
       rightStick = rightStick * rightStick;
       }else if (rightStick < 0){
-        rightStick = rightStick * rightStick * -1;
+        rightStick = rightStick * -rightStick;
       }
     
     left.set(leftStick);
@@ -231,86 +227,86 @@ public class Robot extends TimedRobot {
 
     // Shooter
     if(joystickButtons.getRawButton(2)){
-    shooterPower.set(ControlMode.PercentOutput, -0.65);
+    shooter.set(ControlMode.PercentOutput, -0.65);
     }else{
-    shooterPower.set(ControlMode.PercentOutput, 0);
+    shooter.set(ControlMode.PercentOutput, 0);
     }
 
     // Cam
 // Every time the cam completes a rotation, the position resets to 0
 // (It doesn't really set the current position to 0, it just tells the code to consider it to be 0)
-    CamRemainder = shooterCam.getSelectedSensorPosition() % -40960;
+    camRemainder = cam.getSelectedSensorPosition() % -40960;
 
-    // CamRemainderIsGood = true when the cam is in starting position
-    if(CamRemainder <= 100 && CamRemainder >= -2500){
-      CamRemainderIsGood = true;
+    // camRemainderIsGood = true when the cam is in starting position
+    if(camRemainder <= 100 && camRemainder >= -2500){
+      camRemainderIsGood = true;
     }else{
-      CamRemainderIsGood = false;
+      camRemainderIsGood = false;
     }
 
-    // CamHasRotated = true when the cam is part way through a rotation
-    // CamHasRotated = false when the cam completes a rotation
-    if(CamRemainder <= -19000 && CamRemainder >= -21000){
-     CamHasRotated = true;
+    // camHasRotated = true when the cam is part way through a rotation
+    // camHasRotated = false when the cam completes a rotation
+    if(camRemainder <= -19000 && camRemainder >= -21000){
+     camHasRotated = true;
     }
-    // When you press button 5, the cam rotates 360*
-    if(joystickButtons.getRawButton(5) && !CamIsOn && CamRemainderIsGood){
-      shooterCam.set(ControlMode.PercentOutput, -0.4);
-      CamIsOn = true;
+    // When you press button 5 (upper blue button), the cam rotates 360*
+    if(joystickButtons.getRawButton(5) && !camIsOn && camRemainderIsGood){
+      cam.set(ControlMode.PercentOutput, -0.4);
+      camIsOn = true;
     }
   
     // Cam stops when it completes a rotation
-      if(CamRemainderIsGood && CamIsOn && CamHasRotated){
-        shooterCam.set(ControlMode.PercentOutput, 0);
-        CamIsOn = false;
-        CamHasRotated = false;
+      if(camRemainderIsGood && camIsOn && camHasRotated){
+        cam.set(ControlMode.PercentOutput, 0);
+        camIsOn = false;
+        camHasRotated = false;
       }
 
 
       // OLD CAM CODE
       //
-      // if(joystickButtons.getRawButton(5) && shooterCam.getSelectedSensorPosition() >= 0 && CamIsOn == false){
-      //   shooterCam.set(ControlMode.PercentOutput, -0.4);
+      // if(joystickButtons.getRawButton(5) && cam.getSelectedSensorPosition() >= 0 && !camIsOn){
+      //   cam.set(ControlMode.PercentOutput, -0.4);
       //   System.out.println("Button 6 is pressed!!!");
-      //   CamIsOn = true;
-      //   CamVariable = true;
+      //   camIsOn = true;
+      //   camVariable = true;
       // }
-      // if(CamVariable == true){
-      //   if(shooterCam.getSelectedSensorPosition() < -20000){
-      //     CamVariable = false;
-      //     shooterCam.set(ControlMode.PercentOutput, 0.4);
-      //     CamVariableTwo = true;
+      // if(camVariable){
+      //   if(cam.getSelectedSensorPosition() < -20000){
+      //     camVariable = false;
+      //     cam.set(ControlMode.PercentOutput, 0.4);
+      //     camVariableTwo = true;
       //   }
       // }
-      // if(shooterCam.getSelectedSensorPosition() > 0 && CamVariableTwo == true){
-      //   shooterCam.set(ControlMode.PercentOutput, 0);
-      //   CamVariableTwo = false;
-      //   CamIsOn = false;
+      // if(cam.getSelectedSensorPosition() > 0 && camVariableTwo){
+      //   cam.set(ControlMode.PercentOutput, 0);
+      //   camVariableTwo = false;
+      //   camIsOn = false;
       // }
 
-      SmartDashboard.putNumber("Encoder_Position", shooterCam.getSelectedSensorPosition());
+      SmartDashboard.putNumber("Encoder_Position", cam.getSelectedSensorPosition());
 
       // Cam reset code
-      // Use this if the Cam gets into the wrong position
+      // Use this if the cam gets into the wrong position
       if(joystickButtons.getRawButton(6) && joystickButtons.getRawButton(1)){
 
-        CamFixer = true;
+        camFixer = true;
 
         if(joystickButtons.getRawAxis(1) == 1){
-          shooterCam.set(ControlMode.PercentOutput, -0.2);
+          cam.set(ControlMode.PercentOutput, -0.2);
         }else if(joystickButtons.getRawAxis(1) == -1){
-          shooterCam.set(ControlMode.PercentOutput, 0.2);
+          cam.set(ControlMode.PercentOutput, 0.2);
         }else{
-          shooterCam.set(ControlMode.PercentOutput, 0);
+          cam.set(ControlMode.PercentOutput, 0);
         }
       }
 
 
       // Auto-orientation
       // Press these buttons to make the robot automaticly move to shooting position
-      if(!joystickButtons.getRawButton(6) && !joystickButtons.getRawButton(1) && CamFixer == true){
-        shooterCam.setSelectedSensorPosition(0);
-        CamFixer = false;
+      if(!joystickButtons.getRawButton(6) && !joystickButtons.getRawButton(1) && camFixer){
+        cam.setSelectedSensorPosition(0);
+        camFixer = false;
       }
 
 
@@ -341,7 +337,7 @@ public class Robot extends TimedRobot {
         // Vertical orientation
         if(xIsGood && orientation2){
   
-        if((y <= 20 && y >= 14) || !v){
+        if((y <= 21 && y >= 16) || !v){
           right.set(0);
           left.set(0);
           xIsGood = false;
@@ -350,10 +346,10 @@ public class Robot extends TimedRobot {
             orientation = true;
             orientation2 = true;
           }
-          }else if(y > 20){
+          }else if(y > 21){
             right.set(0.3);
             left.set(-0.3);
-          }else if(y < 14){
+          }else if(y < 16){
             right.set(-0.3);
             left.set(0.3);
           }
@@ -409,12 +405,9 @@ if(joystickDriver.getRawButton(7) && joystickDriver.getRawButton(8)){
     NetworkTableEntry tx = table.getEntry("tx");
     NetworkTableEntry ty = table.getEntry("ty");
 
-    //read values periodically
+    // Read values periodically
     double x = tx.getDouble(0.0);
     double y = ty.getDouble(0.0);
-
-
-    // System.out.println(x);
 
     if(joystickDriver.getRawButton(5) && joystickDriver.getRawButton(6)){
       // System.out.println("Buttons are pressed");
